@@ -1,0 +1,217 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README Generator with Gemini</title>
+    <link rel="stylesheet" href="\static\css\output.css">
+    <style>
+        /* Custom GitHub-like colors for offline use */
+        :root {
+            --github-dark: #0d1117;
+            --github-darker: #010409;
+            --github-gray: #161b22;
+            --github-border: #30363d;
+            --github-blue: #58a6ff;
+            --github-green: #3fb950;
+            --github-text: #f0f6fc;
+            --github-text-secondary: #8b949e;
+        }
+        
+        .bg-github-dark { background-color: var(--github-dark); }
+        .bg-github-gray { background-color: var(--github-gray); }
+        .bg-github-darker { background-color: var(--github-darker); }
+        .text-github-text { color: var(--github-text); }
+        .text-github-secondary { color: var(--github-text-secondary); }
+        .text-github-blue { color: var(--github-blue); }
+        .text-github-green { color: var(--github-green); }
+        .border-github-border { border-color: var(--github-border); }
+        .hover\:text-github-blue:hover { color: var(--github-blue); }
+        .hover\:bg-github-gray:hover { background-color: var(--github-gray); }
+        .gradient-brand { background: linear-gradient(135deg, #7c3aed, #3b82f6); }
+    </style>
+    <!-- Highlight.js GitHub style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+
+    <!-- Highlight.js script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+</head>
+<body class="bg-github-dark text-github-text min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-github-gray border-b border-github-border sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center space-x-8">
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-github-text hover:text-github-blue transition-colors duration-200">
+                        <div class="w-8 h-8 gradient-brand rounded-md flex items-center justify-center text-white font-bold text-lg">
+                            R
+                        </div>
+                        <span class="text-lg font-semibold">README Generator</span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'home' %}" class="text-github-text hover:text-github-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                        Home
+                    </a>
+                    <a href="{% url 'about' %}" class="text-github-text hover:text-github-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                        About
+                    </a>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-1 text-github-secondary text-sm">
+                    <span>⚡</span>
+                    <span>Powered by Gemini AI</span>
+                </div>
+                <a href="https://github.com" target="_blank" class="text-github-secondary hover:text-github-text transition-colors duration-200">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex-1">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                    <div class="bg-blue-900 bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-4 mb-4">
+                        <p class="text-blue-300">{{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Content Block -->
+        <div class="space-y-8">
+            {% block content %}
+            <!-- Hero Section -->
+            <div class="text-center py-12">
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-6">
+                        Generate Professional README Files
+                    </h1>
+                    <p class="text-xl text-github-secondary mb-8">
+                        Transform your GitHub repositories with AI-powered README generation using Gemini AI
+                    </p>
+                    <div class="flex max-w-2xl mx-auto">
+                        <input 
+                            type="text" 
+                            placeholder="Enter GitHub repository URL..." 
+                            class="flex-1 px-4 py-3 bg-github-gray border border-github-border rounded-l-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <button class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-r-lg transition-colors duration-200">
+                            Generate
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="grid md:grid-cols-3 gap-8 py-12">
+                <div class="text-center p-6 bg-github-gray border border-github-border rounded-lg">
+                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-github-text mb-2">AI-Powered</h3>
+                    <p class="text-github-secondary">Uses Gemini AI to analyze your code and generate documentation</p>
+                </div>
+                
+                <div class="text-center p-6 bg-github-gray border border-github-border rounded-lg">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-github-text mb-2">Professional Quality</h3>
+                    <p class="text-github-secondary">Generates clean, structured README files</p>
+                </div>
+                
+                <div class="text-center p-6 bg-github-gray border border-github-border rounded-lg">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-github-text mb-2">Time-Saving</h3>
+                    <p class="text-github-secondary">Creates documentation in seconds</p>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-github-gray border-t border-github-border mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div class="md:col-span-2">
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 gradient-brand rounded-md flex items-center justify-center text-white font-bold text-lg">
+                        R
+                    </div>
+                    <span class="text-lg font-semibold text-github-text">README Generator</span>
+                </div>
+                <p class="text-github-secondary mb-4">
+                    AI-powered README generation for GitHub repositories. Create professional documentation in seconds with Gemini AI.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"></path>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-github-text font-semibold mb-4">Product</h3>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'home' %}" class="text-github-secondary hover:text-github-text transition-colors duration-200">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="text-github-secondary hover:text-github-text transition-colors duration-200">About</a></li>
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">Features</a></li>
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">Pricing</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="text-github-text font-semibold mb-4">Support</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">Documentation</a></li>
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">Help Center</a></li>
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">Contact</a></li>
+                    <li><a href="#" class="text-github-secondary hover:text-github-text transition-colors duration-200">API</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="border-t border-github-border mt-8 pt-8 text-center">
+            <p class="text-github-secondary">
+                © 2024 README Generator. Built with Django and powered by Google Gemini AI.
+            </p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

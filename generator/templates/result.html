@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-github-border">
+        <div class="space-y-2">
+            <h2 class="text-3xl font-bold text-github-text">Generated README.md</h2>
+            <p class="text-github-secondary">AI-powered documentation ready for your repository</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="copyToClipboard()" class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+                <span>Copy</span>
+            </button>
+            <a href="{% url 'edit_readme' %}?repo={{ repo_url|urlencode }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <span>Edit</span>
+            </a>
+            <a href="{{ repo_url }}" target="_blank" class="px-4 py-2 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                <span>View Repo</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid lg:grid-cols-4 gap-8">
+        <!-- Preview Section -->
+        <div class="lg:col-span-3">
+            <div class="bg-github-gray border border-github-border rounded-lg overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-github-border bg-github-darker">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-github-text">Preview</h3>
+                    </div>
+                    <span class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-sm">Generated</span>
+                </div>
+                <div class="p-6">
+                    <div class="prose prose-invert max-w-none">
+                        {{ readme|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="space-y-6">
+            <!-- Actions -->
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <div class="flex items-center space-x-2 mb-4">
+                    <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-github-text">Actions</h3>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="downloadReadme()" class="w-full px-4 py-2 bg-github-dark border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Download README.md</span>
+                    </button>
+                    <a href="{% url 'home' %}" class="w-full px-4 py-2 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Back to Generator</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Repository Info -->
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <div class="flex items-center space-x-2 mb-4">
+                    <svg class="w-5 h-5 text-github-secondary" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-github-text">Repository</h3>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-github-blue font-mono text-sm break-all">{{ repo_url|truncatechars:40 }}</p>
+                    <p class="text-github-secondary text-sm">Source Repository</p>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <div class="flex items-center space-x-2 mb-4">
+                    <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-github-text">Generation Stats</h3>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-github-secondary text-sm">Content Length: <span class="text-github-text">{{ raw_readme|length }} chars</span></p>
+                    <p class="text-github-secondary text-sm">Generated: <span class="text-github-text">Just now</span></p>
+                    <p class="text-github-secondary text-sm">AI Model: <span class="text-github-text">Gemini AI</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Markdown -->
+    <div class="bg-github-gray border border-github-border rounded-lg overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-github-border bg-github-darker">
+            <h3 class="text-lg font-semibold text-github-text">Raw Markdown</h3>
+            <button onclick="copyRawMarkdown()" class="px-3 py-1 bg-github-gray border border-github-border rounded text-github-text hover:bg-github-darker transition-colors duration-200 text-sm">
+                Copy Raw
+            </button>
+        </div>
+        <div class="p-6 bg-github-dark">
+            <pre class="text-github-text text-sm overflow-x-auto"><code>{{ raw_readme }}</code></pre>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center space-x-4 mb-4">
+                <div id="modal-icon" class="text-2xl"></div>
+                <div>
+                    <h3 id="modal-title" class="text-lg font-semibold text-github-text"></h3>
+                    <p id="modal-message" class="text-github-secondary"></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-github-dark border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showNotification(type, title, message) {
+    const modal = document.getElementById('notification-modal');
+    const icon = document.getElementById('modal-icon');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-message').textContent = message;
+
+    icon.innerHTML = type === 'success' ? '✅' : '❌';
+    modal.classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('notification-modal').classList.add('hidden');
+}
+
+
+function copyToClipboard() {
+    const el = document.createElement('textarea');
+    el.value = `{{ raw_readme|escapejs }}`;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    
+    // Show success feedback
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Copied!</span>';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
+
+function copyRawMarkdown() {
+    copyToClipboard();
+}
+
+function downloadReadme() {
+    const blob = new Blob([`{{ raw_readme|escapejs }}`], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'README.md';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+});
+
+
+</script>
+{% endblock %}

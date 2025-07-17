@@ -1,0 +1,52 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pyc
+
+# Django
+db.sqlite3
+*.log
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# macOS and Linux
+.DS_Store
+Thumbs.db
+
+# Node (Tailwind)
+node_modules/
+package-lock.json
+package.json
+postcss.config.js
+tailwind.config.js
+digest.txt
+
+yarn.lock
+
+# Tailwind CSS build artifacts
+*.css.map
+generator/static/css/output.css
+
+# Migrations (optional: only if generated later or unneeded in repo)
+generator/migrations/
+!generator/migrations/__init__.py
+
+# OS Trash and backups
+*.bak
+*.swp
+*~
+*.tmp
+
+# Remove this if you want to version control test files later
+generator/tests.py
+
+# Remove the following folder – not used
+my-project/
+
+# Optional: compiled HTML or temporary files
+*.html~

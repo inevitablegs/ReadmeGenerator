@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Form Section -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-github-gray border border-github-border rounded-lg p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-github-text mb-2">Generate README.md</h2>
+                <p class="text-github-secondary">Create professional documentation for your GitHub repository</p>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Repository URL -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-github-text">
+                        {{ form.repo_url.label }}
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                        </div>
+                        {{ form.repo_url|add_class:"w-full pl-10 pr-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" }}
+                    </div>
+                    {% if form.repo_url.help_text %}
+                        <p class="text-sm text-github-secondary">{{ form.repo_url.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Custom Prompt -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-github-text">
+                        {{ form.custom_prompt.label }}
+                    </label>
+                    {{ form.custom_prompt|add_class:"w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" }}
+                    {% if form.custom_prompt.help_text %}
+                        <p class="text-sm text-github-secondary">{{ form.custom_prompt.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-4">
+                    <div class="flex items-center space-x-2 text-github-secondary text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span>AI-powered generation</span>
+                    </div>
+                    <button type="submit" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span>Generate README</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Repositories -->
+    {% if recent_repos %}
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-github-text">Recently Generated</h2>
+            <span class="text-github-secondary bg-github-gray px-3 py-1 rounded-full text-sm">
+                {{ recent_repos|length }} repositories
+            </span>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {% for repo in recent_repos %}
+            <div class="bg-github-gray border border-github-border rounded-lg p-6 hover:border-github-blue transition-colors duration-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <a href="{{ repo.url }}" target="_blank" class="text-github-blue hover:underline font-medium block mb-2">
+                            {{ repo.url|truncatechars:60 }}
+                        </a>
+                        <div class="flex items-center space-x-2 text-github-secondary text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>{{ repo.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="flex-1 px-4 py-2 bg-github-dark border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200 text-sm">
+                        View
+                    </button>
+                    <a href="{{ repo.url }}" target="_blank" class="px-4 py-2 border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Tips -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-blue-900 bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-blue-300 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Quick Tips
+            </h3>
+            <ul class="space-y-2 text-blue-200">
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">•</span>
+                    Use public GitHub repository URLs for best results
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">•</span>
+                    Add custom prompts to tailor the README to your needs
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">•</span>
+                    The AI analyzes your code structure, dependencies, and existing documentation
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+
+    form.addEventListener('submit', function() {
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<svg class="w-4 h-4 animate-spin mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Generating...';
+    });
+
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+});
+</script>
+{% endblock %}

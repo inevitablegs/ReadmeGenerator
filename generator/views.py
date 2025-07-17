@@ -87,3 +87,21 @@ def save_readme(request):
         return JsonResponse({"success": True})
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+
+# generator/views.py
+@never_cache
+@require_http_methods(["GET"])
+def result(request):
+    repo_url = unquote(request.GET.get('repo', ''))
+    try:
+        repo = Repository.objects.get(url=repo_url)
+        readme_html = markdown(repo.readme_content)
+        return render(request, 'result.html', {
+            'readme': readme_html,
+            'raw_readme': repo.readme_content,
+            'repo_url': repo_url
+        })
+    except Repository.DoesNotExist:
+        messages.error(request, "Repository not found")
+        return redirect('home')

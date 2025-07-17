@@ -1,187 +1,374 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
-{% load static %}
+{% load widget_tweaks %} 
+{% load static %} 
 {% block content %}
 <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex items-center space-x-3 pb-6 border-b border-github-border">
-        <svg class="w-6 h-6 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+  <!-- Header -->
+  <div class="flex items-center space-x-3 pb-6 border-b border-github-border">
+    <svg
+      class="w-6 h-6 text-github-secondary"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+      ></path>
+    </svg>
+    <h3 class="text-2xl font-bold text-github-text">
+      Edit & Preview README.md
+    </h3>
+  </div>
+
+  <!-- Editor and Preview Grid -->
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- Markdown Editor -->
+    <div class="space-y-4">
+      <div
+        class="bg-github-gray border border-github-border rounded-lg overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker"
+        >
+          <div class="flex items-center space-x-2">
+            <svg
+              class="w-4 h-4 text-github-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              ></path>
+            </svg>
+            <label class="text-sm font-medium text-github-text"
+              >Live Preview</label
+            >
+          </div>
+          <span
+            class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-xs"
+            >Live</span
+          >
+        </div>
+        <div class="p-4 h-96 overflow-y-auto markdown-body" id="previewArea">
+          Live preview will appear here...
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="space-y-4">
+      <div
+        class="bg-github-gray border border-github-border rounded-lg overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker"
+        >
+          <div class="flex items-center space-x-2">
+            <svg
+              class="w-4 h-4 text-github-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              ></path>
+            </svg>
+            <label class="text-sm font-medium text-github-text"
+              >Live Preview</label
+            >
+          </div>
+          <span
+            class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-xs"
+            >Live</span
+          >
+        </div>
+        <div class="p-4 h-96 overflow-y-auto">
+          <div id="previewArea" class="prose prose-invert max-w-none">
+            Live preview will appear here...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6 border-t border-github-border"
+  >
+    <a
+      href="{% url 'result' %}?repo={{ repo_url|urlencode }}"
+      class="flex items-center space-x-2 text-github-secondary hover:text-github-text transition-colors duration-200"
+    >
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+      <span>← Back to Result</span>
+    </a>
+
+    <div class="flex items-center space-x-3">
+      <a
+        href="#"
+        onclick="downloadReadme()"
+        class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          ></path>
         </svg>
-        <h3 class="text-2xl font-bold text-github-text">Edit & Preview README.md</h3>
+        <span>⬇️ Download</span>
+      </a>
+      <button
+        onclick="saveChanges()"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          ></path>
+        </svg>
+        <span>💾 Save Changes</span>
+      </button>
     </div>
+  </div>
 
-    <!-- Editor and Preview Grid -->
-    <div class="grid lg:grid-cols-2 gap-6">
-        <!-- Markdown Editor -->
-        <div class="space-y-4">
-            <div class="bg-github-gray border border-github-border rounded-lg overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-4 h-4 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <label class="text-sm font-medium text-github-text">Markdown Code</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-github-secondary text-xs">Auto-save enabled</span>
-                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                    </div>
-                </div>
-                <div class="p-0">
-                    <textarea 
-                        id="editor" 
-                        class="w-full h-96 p-4 bg-github-dark text-github-text border-none resize-none focus:outline-none font-mono text-sm leading-relaxed"
-                        placeholder="Enter your README markdown here..."
-                    >{{ readme_content }}</textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- Live Preview -->
-        <div class="space-y-4">
-            <div class="bg-github-gray border border-github-border rounded-lg overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-4 h-4 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                        <label class="text-sm font-medium text-github-text">Live Preview</label>
-                    </div>
-                    <span class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-xs">Live</span>
-                </div>
-                <div class="p-4 h-96 overflow-y-auto">
-                    <div id="previewArea" class="prose prose-invert max-w-none">
-                        Live preview will appear here...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6 border-t border-github-border">
-        <a href="{% url 'home' %}" class="flex items-center space-x-2 text-github-secondary hover:text-github-text transition-colors duration-200">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            <span>← Back to Home</span>
+  <!-- Advanced Actions -->
+  <div class="bg-github-gray border border-github-border rounded-lg p-6">
+    <h4 class="text-lg font-semibold text-github-text mb-4 flex items-center">
+      <svg
+        class="w-5 h-5 mr-2 text-github-secondary"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 10V3L4 14h7v7l9-11h-7z"
+        ></path>
+      </svg>
+      Advanced Actions
+    </h4>
+    <div
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+    >
+      <p class="text-github-secondary">
+        Ready to push your changes directly to GitHub? This will update the
+        README.md file in your repository.
+      </p>
+      <div class="flex items-center space-x-3">
+        <a
+          href="{% url 'home' %}"
+          class="px-4 py-2 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center space-x-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          <span>← Back</span>
         </a>
-        
-        <div class="flex items-center space-x-3">
-            <a href="#" onclick="downloadReadme()" class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span>⬇️ Download</span>
-            </a>
-            <button onclick="saveChanges()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                <span>💾 Save Changes</span>
-            </button>
-        </div>
+        <button
+          onclick="pushToGithub()"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span>Push to GitHub</span>
+        </button>
+        <a
+          href="#"
+          onclick="downloadReadme()"
+          class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            ></path>
+          </svg>
+          <span>⬇️ Download</span>
+        </a>
+      </div>
     </div>
+  </div>
 
-    <!-- Advanced Actions -->
-    <div class="bg-github-gray border border-github-border rounded-lg p-6">
-        <h4 class="text-lg font-semibold text-github-text mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-            Advanced Actions
-        </h4>
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <p class="text-github-secondary">
-                Ready to push your changes directly to GitHub? This will update the README.md file in your repository.
-            </p>
-            <div class="flex items-center space-x-3">
-                <a href="{% url 'home' %}" class="px-4 py-2 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    <span>← Back</span>
-                </a>
-                <button onclick="pushToGithub()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span>Push to GitHub</span>
-                </button>
-                <a href="#" onclick="downloadReadme()" class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <span>⬇️ Download</span>
-                </a>
-            </div>
+  <!-- Notification Toast -->
+  <div
+    id="notification-toast"
+    class="fixed bottom-4 right-4 transform translate-x-full transition-transform duration-300 z-50"
+  >
+    <div
+      class="bg-github-gray border border-github-border rounded-lg p-4 shadow-lg min-w-80"
+    >
+      <div class="flex items-center space-x-3">
+        <div id="toast-icon" class="text-lg"></div>
+        <div>
+          <div
+            id="toast-title"
+            class="text-sm font-medium text-github-text"
+          ></div>
+          <div id="toast-message" class="text-xs text-github-secondary"></div>
         </div>
+      </div>
     </div>
-
-    <!-- Notification Toast -->
-    <div id="notification-toast" class="fixed bottom-4 right-4 transform translate-x-full transition-transform duration-300 z-50">
-        <div class="bg-github-gray border border-github-border rounded-lg p-4 shadow-lg min-w-80">
-            <div class="flex items-center space-x-3">
-                <div id="toast-icon" class="text-lg"></div>
-                <div>
-                    <div id="toast-title" class="text-sm font-medium text-github-text"></div>
-                    <div id="toast-message" class="text-xs text-github-secondary"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-    const editor = document.getElementById('editor');
-    const preview = document.getElementById('previewArea');
+  const editor = document.getElementById("editor");
+  const preview = document.getElementById("previewArea");
 
-    function updatePreview() {
-        if (typeof marked !== 'undefined') {
-            preview.innerHTML = marked.parse(editor.value);
-        } else {
-            preview.innerHTML = '<p class="text-github-secondary">Loading preview...</p>';
+  function updatePreview() {
+    if (typeof marked !== "undefined") {
+      preview.innerHTML = marked.parse(editor.value);
+    } else {
+      preview.innerHTML =
+        '<p class="text-github-secondary">Loading preview...</p>';
+    }
+  }
+
+  function showToast(type, title, message) {
+    const toast = document.getElementById("notification-toast");
+    const icon = document.getElementById("toast-icon");
+    const titleEl = document.getElementById("toast-title");
+    const messageEl = document.getElementById("toast-message");
+    icon.innerHTML =
+      type === "success"
+        ? '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 6a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+        : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21.752 12.002a9.003 9.003 0 11-18.004-.001A9.003 9.003 0 0121.752 12z"></path></svg>';
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    toast.classList.remove("translate-x-full");
+    setTimeout(() => {
+      toast.classList.add("translate-x-full");
+    }, 3000);
+  }
+  function downloadReadme() {
+    const blob = new Blob([editor.value], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "README.md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function saveChanges() {
+    // Simulate saving changes
+    showToast(
+      "success",
+      "Changes Saved",
+      "Your README.md has been saved successfully."
+    );
+  }
+  function pushToGithub() {
+    // Simulate pushing to GitHub
+    showToast(
+      "success",
+      "Pushed to GitHub",
+      "Your changes have been pushed to your repository."
+    );
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    editor.addEventListener("input", updatePreview);
+    updatePreview(); // Initial preview update
+  });
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+    @media (max-width: 767px) {
+        .markdown-body {
+            padding: 15px;
         }
     }
-
-    function showToast(type, title, message) {
-        const toast = document.getElementById('notification-toast');
-        const icon = document.getElementById('toast-icon');
-        const titleEl = document.getElementById('toast-title');
-        const messageEl = document.getElementById('toast-message');
-        icon.innerHTML = type === 'success' ? '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 6a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21.752 12.002a9.003 9.003 0 11-18.004-.001A9.003 9.003 0 0121.752 12z"></path></svg>';
-        titleEl.textContent = title;
-        messageEl.textContent = message;
-        toast.classList.remove('translate-x-full'); 
-        setTimeout(() => {
-            toast.classList.add('translate-x-full');
-        }, 3000);
+    .markdown-body pre code {
+        display: block;
+        overflow-x: auto;
+        padding: 1em;
     }
-    function downloadReadme() {
-        const blob = new Blob([editor.value], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'README.md';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-    function saveChanges() {
-        // Simulate saving changes
-        showToast('success', 'Changes Saved', 'Your README.md has been saved successfully.');
-    }
-    function pushToGithub() {
-        // Simulate pushing to GitHub
-        showToast('success', 'Pushed to GitHub', 'Your changes have been pushed to your repository.');
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        editor.addEventListener('input', updatePreview);
-        updatePreview(); // Initial preview update
-    });
-</script>
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 {% endblock %}

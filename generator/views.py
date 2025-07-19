@@ -16,10 +16,16 @@ def home(request):
             try:
                 repo_url = form.cleaned_data['repo_url']
                 user_prompt = form.cleaned_data.get('custom_prompt', '')
-                readme_content = generate_readme(repo_url, user_prompt)
+                backend = request.POST.get("backend", "gemini")
+                gh_token = request.session.get('gh_token', '')  # Retrieve GitHub token from session or set as needed
+                readme_content = generate_readme(repo_url, user_prompt, backend)
 
                 # Convert to HTML for preview
-                readme_html = markdown(readme_content)
+                readme_html = markdown(
+                    readme_content,
+                    extensions=['fenced_code', 'codehilite', 'tables'],
+                    output_format='html5'
+                )
 
                 # Save to database
                 Repository.objects.update_or_create(

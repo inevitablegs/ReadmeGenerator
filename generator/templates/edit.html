@@ -62,9 +62,12 @@
             >Live</span
           >
         </div>
-        <div class="p-4 h-96 overflow-y-auto markdown-body" id="previewArea">
-          Live preview will appear here...
-        </div>
+        <textarea
+          id="editor"
+          class="w-full h-96 p-4 bg-github-dark text-github-text border border-github-border rounded-lg resize-none"
+          placeholder="Edit your README.md here..."
+        >{{ readme_content }}</textarea>
+
       </div>
     </div>
 
@@ -106,7 +109,7 @@
           >
         </div>
         <div class="p-4 h-96 overflow-y-auto">
-          <div id="previewArea" class="prose prose-invert max-w-none">
+          <div id="previewArea" class="markdown-body">
             Live preview will appear here...
           </div>
         </div>
@@ -226,10 +229,6 @@
           </svg>
           <span>← Back</span>
         </a>
-        <button
-          onclick="pushToGithub()"
-          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
-        >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fill-rule="evenodd"
@@ -292,12 +291,19 @@
 
   function updatePreview() {
     if (typeof marked !== "undefined") {
-      preview.innerHTML = marked.parse(editor.value);
+      const html = marked.parse(editor.value);
+      preview.innerHTML = html;
+
+      // Highlight code blocks
+      document.querySelectorAll("#previewArea pre code").forEach((block) => {
+        hljs.highlightElement(block);
+      });
     } else {
-      preview.innerHTML =
-        '<p class="text-github-secondary">Loading preview...</p>';
+      preview.innerHTML = '<p class="text-github-secondary">Loading preview...</p>';
     }
   }
+
+
 
   function showToast(type, title, message) {
     const toast = document.getElementById("notification-toast");
@@ -332,14 +338,6 @@
       "success",
       "Changes Saved",
       "Your README.md has been saved successfully."
-    );
-  }
-  function pushToGithub() {
-    // Simulate pushing to GitHub
-    showToast(
-      "success",
-      "Pushed to GitHub",
-      "Your changes have been pushed to your repository."
     );
   }
   document.addEventListener("DOMContentLoaded", () => {

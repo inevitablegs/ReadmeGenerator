@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from markdown import markdown
 from html.parser import HTMLParser
-
+from groq import Groq
 load_dotenv()
 
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
@@ -37,16 +37,20 @@ def validate_markdown(content):
     except Exception as e:
         raise ValidationError(f"Markdown validation failed: {str(e)}")
 
-# --- Extract owner/repo from URL ---
 def extract_repo_info(url):
     parts = url.strip('/').split('/')
     if len(parts) < 2:
         raise ValueError("Invalid GitHub URL")
     return parts[-2], parts[-1]
 
+def log_repo_meta(repo_data):
+    print("\n🧾 Repo Metadata Debug:")
+    for k, v in repo_data.items():
+        if isinstance(v, (dict, list)):
+            print(f"{k}: {len(v)} items")
+        else:
+            print(f"{k}: {v}")
 
-
-# --- Fetch all useful repo metadata + README ---
 def get_repo_data(owner, repo_name):
     g = Github(os.getenv('GITHUB_TOKEN'))
     repo = g.get_repo(f"{owner}/{repo_name}")
@@ -78,47 +82,80 @@ def get_repo_data(owner, repo_name):
     data['ingestion_summary'] = get_repo_ingestion_summary(repo)
     return data
 
-# generator/services.py (updated)
-
-def get_repo_ingestion_summary(repo, max_files=25):
-    """Improved repository analysis focusing on key files"""
+def get_repo_ingestion_summary(repo, max_files=50):
+    """Smart ingestion of all project types: Python, JS, Node, Web, Docker, etc."""
     important_files = []
-    
+    seen_paths = set()
+
     try:
         contents = repo.get_contents("")
         while contents:
-            file_content = contents.pop(0)
-            if file_content.type == "dir":
-                contents.extend(repo.get_contents(file_content.path))
-            else:
-                # Focus on key files only
-                key_files = [
-                    'requirements.txt', 'package.json', 'Dockerfile',
-                    'setup.py', 'Makefile', 'README.md', '.env.example',
-                    'docker-compose.yml', 'config.json'
+            item = contents.pop(0)
+
+            if item.path in seen_paths:
+                continue
+            seen_paths.add(item.path)
+
+            if item.type == "dir":
+                try:
+                    contents.extend(repo.get_contents(item.path))
+                except Exception:
+                    continue
+            elif item.type == "file":
+                ext = os.path.splitext(item.name)[-1].lower()
+                important_names = [
+                    "README.md", "requirements.txt", "setup.py", "Dockerfile", "Makefile",
+                    "package.json", "pyproject.toml", ".env.example", "config.json",
+                    "docker-compose.yml", "Procfile"
                 ]
-                
-                if file_content.name in key_files or file_content.name.endswith(('.py', '.js', '.md')):
+                important_exts = [
+                    ".py", ".js", ".ts", ".html", ".yml", ".yaml", ".json", ".sh", ".cpp", ".java"
+                ]
+
+                if item.name in important_names or ext in important_exts:
                     try:
-                        content = file_content.decoded_content.decode('utf-8', errors='ignore')
+                        content = item.decoded_content.decode("utf-8", errors="ignore")
                         important_files.append({
-                            'path': file_content.path,
-                            'content': content[:1000]  # Limit content size
+                            "path": item.path,
+                            "language": ext or "text",
+                            "content": content[:1500]
                         })
-                    except:
+                    except Exception:
                         continue
-                    
-                if len(important_files) >= max_files:
-                    break
-                    
+
+            if len(important_files) >= max_files:
+                break
+
     except Exception as e:
-        important_files.append({'error': str(e)})
-        
+        important_files.append({"error": f"Ingestion error: {str(e)}"})
+
     return important_files
 
-def generate_readme_content(repo_data, user_prompt="", repo_url=""):
-    """Improved prompt for professional README generation"""
+
+
+def generate_with_groq(prompt, model_name="deepseek-r1-distill-llama-70b"):
+    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=4096 
+    )
+
+    return response.choices[0].message.content.strip()
+
+
+
+
+def generate_readme_content(repo_data, user_prompt="", repo_url="", backend="gemini"):
+    file_summary = ""
+    for file in repo_data.get('ingestion_summary', []):
+        if "path" in file and "content" in file:
+            file_summary += f"\n📄 **{file['path']}**:\n```\n{file['content']}\n```\n"
+
     prompt = f"""
+<readme_generation>
 You are a professional technical writer specializing in GitHub documentation.
 
 Generate a clean, well-formatted `README.md` file for the following repository:
@@ -136,8 +173,8 @@ Generate a clean, well-formatted `README.md` file for the following repository:
 
 ---
 
-🧠 **Project Analysis (Key Files)**:
-{chr(10).join([f"- {f['path']}" for f in repo_data.get('ingestion_summary', []) if isinstance(f, dict)])}
+🧠 **Project Ingestion Snapshot**:
+{file_summary or 'No files available'}
 
 ---
 
@@ -168,35 +205,37 @@ Generate a clean, well-formatted `README.md` file for the following repository:
 - Limit lines to 100 chars
 - Use tables for technologies
 - Clear, professional tone
+</readme_generation>
 """
-    
-    # Rest of the function remains the same...
 
+    if backend == "groq":
+        raw_md = generate_with_groq(prompt)
+    else:
+        # Default: Gemini
+        response = model.generate_content(
+            prompt,
+            safety_settings={
+                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
+                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
+                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
+                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
+            },
+            generation_config={
+                'temperature': 0.7,
+                'top_p': 0.9,
+                'max_output_tokens': 2048,
+            }
+        )
+        raw_md = response.text
 
+    if not raw_md:
+        raise ValueError(f"{backend.upper()} did not return any content")
 
-    response = model.generate_content(
-        prompt,
-        safety_settings={
-            'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
-            'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
-            'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
-            'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
-        },
-        generation_config={
-            'temperature': 0.7,
-            'top_p': 0.9,
-            'max_output_tokens': 2048,
-        }
-    )
+    return validate_markdown(raw_md)
 
-    if not response.text:
-        raise ValueError("Gemini did not return any content")
-
-    return validate_markdown(response.text)
-
-# --- Main entry point used by views.py ---
-def generate_readme(repo_url, user_prompt=""):
-    cache_key = f"readme_{repo_url}_{user_prompt}"
+def generate_readme(repo_url, user_prompt="", backend="gemini"):
+    # Include backend in cache key to separate results
+    cache_key = f"readme_{backend}_{repo_url}_{user_prompt}"
     cached = cache.get(cache_key)
     if cached:
         return cached
@@ -205,26 +244,31 @@ def generate_readme(repo_url, user_prompt=""):
         owner, repo_name = extract_repo_info(repo_url)
         repo_data = get_repo_data(owner, repo_name)
         repo_data['name'] = repo_name
-        readme_content = generate_readme_content(repo_data, user_prompt, repo_url)
+
+        log_repo_meta(repo_data)  # Optional logging, keep if useful
+
+        readme_content = generate_readme_content(
+            repo_data,
+            user_prompt=user_prompt,
+            repo_url=repo_url,
+            backend=backend
+        )
+
         cache.set(cache_key, readme_content, timeout=86400)
         return readme_content
+
     except Exception as e:
         raise Exception(f"Failed to generate README: {str(e)}")
-    
-    
-# generator/services.py (add at module level after imports)
-load_dotenv()
+
 
 # Validate GitHub token on startup
 try:
     github_token = os.getenv('GITHUB_TOKEN')
     if github_token:
         g = Github(github_token)
-        # Simple verification by getting authenticated user
         user = g.get_user()
-        print(f"GitHub token validated for user: {user.login}")
+        print(f"✅ GitHub token validated: {user.login}")
     else:
-        print("WARNING: GITHUB_TOKEN environment variable not set")
+        print("⚠️ GITHUB_TOKEN not set")
 except Exception as e:
-    print(f"WARNING: GitHub token validation failed: {str(e)}")
-
+    print(f"⚠️ GitHub token validation failed: {str(e)}")

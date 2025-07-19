@@ -133,13 +133,13 @@ def get_repo_ingestion_summary(repo, max_files=50):
 
 
 
-def generate_with_groq(prompt, model_name="deepseek-r1-distill-llama-70b"):
+def generate_with_groq(prompt, model_name="llama-3.3-70b-versatile"):
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
     response = client.chat.completions.create(
         model=model_name,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=1,
         max_tokens=4096 
     )
 
@@ -155,7 +155,6 @@ def generate_readme_content(repo_data, user_prompt="", repo_url="", backend="gem
             file_summary += f"\n📄 **{file['path']}**:\n```\n{file['content']}\n```\n"
 
     prompt = f"""
-<readme_generation>
 You are a professional technical writer specializing in GitHub documentation.
 
 Generate a clean, well-formatted `README.md` file for the following repository:
@@ -191,9 +190,9 @@ Generate a clean, well-formatted `README.md` file for the following repository:
 5. Usage with code examples
 6. Configuration if needed
 7. Technologies table
-8. Screenshots (placeholder)
-9. Contributing guidelines
-10. License section
+8. Explain technologies used (e.g., Python, Django, React)
+9. Screenshots (placeholder)
+10. Contributing guidelines
 11. Do **not** include folder structure
 
 ---
@@ -201,11 +200,10 @@ Generate a clean, well-formatted `README.md` file for the following repository:
 🧾 **Formatting Rules**:
 - Use GitHub-flavored Markdown
 - Emojis in headings
-- Code blocks with language syntax
+- Code blocks with language syntax like ```python``` or ```bash``
 - Limit lines to 100 chars
 - Use tables for technologies
 - Clear, professional tone
-</readme_generation>
 """
 
     if backend == "groq":

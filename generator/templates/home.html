@@ -85,45 +85,46 @@
     {% if recent_repos %}
     <div class="max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-github-text">Recently Generated</h2>
-            <span class="text-github-secondary bg-github-gray px-3 py-1 rounded-full text-sm">
-                {{ recent_repos|length }} repositories
-            </span>
-        </div>
+        <h2 class="text-2xl font-bold text-github-text">Recently Generated</h2>
+        <span class="text-github-secondary bg-github-gray px-3 py-1 rounded-full text-sm">
+            {{ recent_repos|length }} repositories
+        </span>
+    </div>
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {% for repo in recent_repos %}
-            <div class="bg-github-gray border border-github-border rounded-lg p-6 hover:border-github-blue transition-colors duration-200">
-                <div class="flex flex-col space-y-4">
-                    <div class="w-full">
-                        <div class="w-full overflow-hidden">
-                            <a href="{{ repo.url }}" target="_blank" 
-                               class="text-github-blue hover:underline font-medium block truncate" 
-                               title="{{ repo.url }}">
-                                {{ repo.url|truncatechars:35 }}
-                            </a>
-                            <div class="flex items-center space-x-2 text-github-secondary text-sm mt-1">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="truncate">{{ repo.created_at|timesince }} ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2 pt-2 border-t border-github-border">
-                        <button class="flex-1 px-4 py-2 bg-github-dark border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200 text-sm">
-                            View
-                        </button>
-                        <a href="{{ repo.url }}" target="_blank" class="p-2 border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                            </svg>
-                        </a>
+        <!-- In generator/templates/home.html, update the card section -->
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for repo in recent_repos %}
+    <div class="bg-github-gray border border-github-border rounded-lg p-6 hover:border-github-blue transition-colors duration-200">
+        <div class="flex flex-col space-y-4">
+            <div class="w-full">
+                <div class="w-full overflow-hidden">
+                    <a href="{{ repo.url }}" target="_blank" 
+                       class="text-github-blue hover:underline font-medium block truncate" 
+                       title="{{ repo.url }}">
+                        {{ repo.url|truncatechars:35 }}
+                    </a>
+                    <div class="flex items-center space-x-2 text-github-secondary text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="truncate">{{ repo.created_at|timesince }} ago</span>
                     </div>
                 </div>
             </div>
-            {% endfor %}
+            <div class="flex items-center space-x-2 pt-2 border-t border-github-border">
+                <a href="{% url 'result' %}?repo={{ repo.url|urlencode }}" class="flex-1 px-4 py-2 bg-github-dark border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200 text-sm text-center">
+                    View
+                </a>
+                <a href="{{ repo.url }}" target="_blank" class="p-2 border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            </div>
         </div>
+    </div>
+    {% endfor %}
+</div>
     </div>
     {% endif %}
 

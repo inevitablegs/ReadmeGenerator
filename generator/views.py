@@ -17,20 +17,22 @@ def home(request):
                 repo_url = form.cleaned_data['repo_url']
                 user_prompt = form.cleaned_data.get('custom_prompt', '')
                 backend = request.POST.get("backend", "gemini")
-                gh_token = request.session.get('gh_token', '')  # Retrieve GitHub token from session or set as needed
+                
+                # Get or create the repository first
+                repo, created = Repository.objects.get_or_create(url=repo_url)
+                
+                # Generate the README content
                 readme_content = generate_readme(repo_url, user_prompt, backend)
+                
+                # Update the repository with new content
+                repo.readme_content = readme_content
+                repo.save()
 
                 # Convert to HTML for preview
                 readme_html = markdown(
                     readme_content,
                     extensions=['fenced_code', 'codehilite', 'tables'],
                     output_format='html5'
-                )
-
-                # Save to database
-                Repository.objects.update_or_create(
-                    url=repo_url,
-                    defaults={'readme_content': readme_content}
                 )
 
                 return render(request, 'result.html', {
@@ -50,6 +52,7 @@ def home(request):
     else:
         form = RepoForm()
 
+    # Always show the 5 most recent repositories
     return render(request, 'home.html', {
         'form': form,
         'recent_repos': Repository.objects.order_by('-created_at')[:5]

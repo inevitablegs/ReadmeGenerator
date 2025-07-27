@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Help Center</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Have questions? We've got answers. Here are some frequently asked questions.
+        </p>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="max-w-3xl mx-auto space-y-4">
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">Is this service free to use?</summary>
+            <p class="text-github-secondary mt-3">Yes, our basic service is completely free for open-source and personal projects, with a generous daily limit. We plan to offer paid plans with higher limits and advanced features in the future.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">What AI models are used?</summary>
+            <p class="text-github-secondary mt-3">We use Google's `Gemini-1.5-Flash` for its strong analytical capabilities and `Llama 3` via the Groq API for incredible speed. You can choose which model to use on the home page.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">Does it work with private repositories?</summary>
+            <p class="text-github-secondary mt-3">Currently, the tool only supports public GitHub repositories due to API limitations. Support for private repos via GitHub App authentication is on our roadmap.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">The generated README has some inaccuracies. What can I do?</summary>
+            <p class="text-github-secondary mt-3">AI is not perfect. If you find any issues, you can use the 'Edit' feature on the results page to make corrections. You can also try regenerating with a more specific custom prompt to guide the AI better.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">How is my data used?</summary>
+            <p class="text-github-secondary mt-3">We fetch your code for analysis and pass it to the AI provider (Google or Groq). We cache the generated READMEs to speed up subsequent requests, but we do not store your code or use it for any other purpose.</p>
+        </details>
+    </div>
+</div>
+{% endblock %}

@@ -6,6 +6,10 @@ from .forms import RepoForm
 from .services import generate_readme
 from .models import Repository
 from markdown import markdown
+from urllib.parse import unquote
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
 
 @never_cache
 @require_http_methods(["GET", "POST"])
@@ -62,12 +66,6 @@ def home(request):
 def about(request):
     return render(request, 'about.html')
 
-
-
-from urllib.parse import unquote
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-
 @never_cache
 @require_http_methods(["GET"])
 def edit_readme(request):
@@ -98,7 +96,6 @@ def save_readme(request):
         return JsonResponse({"success": False, "error": str(e)})
 
 
-# generator/views.py
 @never_cache
 @require_http_methods(["GET"])
 def result(request):
@@ -114,3 +111,30 @@ def result(request):
     except Repository.DoesNotExist:
         messages.error(request, "Repository not found")
         return redirect('home')
+
+# --- New Views for Footer and Nav Links ---
+
+@never_cache
+def features(request):
+    return render(request, 'features.html')
+
+@never_cache
+def pricing(request):
+    return render(request, 'pricing.html')
+
+@never_cache
+def documentation(request):
+    return render(request, 'documentation.html')
+
+@never_cache
+def help_center(request):
+    return render(request, 'help_center.html')
+
+@never_cache
+def contact(request):
+    # In a real app, you would handle form submission here
+    return render(request, 'contact.html')
+
+@never_cache
+def api(request):
+    return render(request, 'api.html')

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Documentation</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Everything you need to know to generate the perfect README for your project.
+        </p>
+    </div>
+
+    <div class="bg-github-gray border border-github-border rounded-lg p-8 max-w-4xl mx-auto space-y-8">
+        <!-- How It Works -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">How It Works</h2>
+            <p class="text-github-secondary leading-relaxed">Our generator follows a simple three-step process:
+            <ol class="list-decimal list-inside mt-4 space-y-2 text-github-secondary">
+                <li><strong>Ingest:</strong> We analyze the files in your public GitHub repository to understand its structure, languages, and dependencies.</li>
+                <li><strong>Analyze:</strong> Our AI engine processes this information, along with any custom instructions you provide, to create a detailed project profile.</li>
+                <li><strong>Generate:</strong> Using this profile, the AI writes a clean, comprehensive, and well-formatted `README.md` file tailored to your project.</li>
+            </ol>
+            </p>
+        </div>
+
+        <!-- Using the Generator -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">Using the Generator</h2>
+            <p class="text-github-secondary leading-relaxed">
+                1. <strong>Enter URL:</strong> On the <a href="{% url 'home' %}" class="text-blue-400 hover:underline">home page</a>, paste the full URL of your public GitHub repository.
+                <br>
+                2. <strong>Select Model:</strong> Choose between `Gemini` (balanced) or `Groq` (fast) AI models.
+                <br>
+                3. <strong>Add Instructions (Optional):</strong> Use the custom instructions box to guide the AI. For example: "Focus on the data processing pipeline" or "Add a section on API endpoints."
+                <br>
+                4. <strong>Generate:</strong> Click the "Generate README" button and wait for the magic to happen.
+            </p>
+        </div>
+
+        <!-- Editing and Exporting -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">Editing & Exporting</h2>
+            <p class="text-github-secondary leading-relaxed">
+                After generation, you'll be taken to the result page. From there, you can:
+                <ul class="list-disc list-inside mt-4 space-y-2 text-github-secondary">
+                    <li><strong>Preview</strong> the rendered HTML.</li>
+                    <li><strong>View</strong> the raw Markdown source.</li>
+                    <li><strong>Copy</strong> the markdown to your clipboard.</li>
+                    <li><strong>Download</strong> the `README.md` file directly.</li>
+                    <li><strong>Edit</strong> the content in our live editor to make final adjustments.</li>
+                </ul>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

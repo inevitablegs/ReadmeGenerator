@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Powerful Features</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Our generator is packed with features designed to create the perfect README for any project.
+        </p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Smart Code Ingestion</h3>
+            <p class="text-github-secondary">The AI analyzes your entire repository—code files, dependencies (like `requirements.txt` or `package.json`), and folder structure—to understand your project's purpose and technology stack.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Multi-Backend AI</h3>
+            <p class="text-github-secondary">Choose between powerful AI models. Use Google's Gemini for balanced performance or Groq's Llama 3 for blazing-fast generation, giving you flexibility and control.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Custom Instructions</h3>
+            <p class="text-github-secondary">Guide the AI with custom prompts. Ask it to add specific feature sections, adopt a certain tone, include badges, or highlight key aspects of your project.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Professional Templates</h3>
+            <p class="text-github-secondary">Generates a well-structured README with all essential sections: description, features, installation, usage, technologies, contributing, and more.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Live Editor & Preview</h3>
+            <p class="text-github-secondary">Fine-tune your generated README in a side-by-side markdown editor with a live preview. What you see is what you get.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">One-Click Export</h3>
+            <p class="text-github-secondary">Easily copy the raw markdown to your clipboard or download the `README.md` file, ready to be committed to your repository.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

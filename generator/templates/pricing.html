@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Simple & Transparent Pricing</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Start for free and scale as you grow. No hidden fees.
+        </p>
+    </div>
+
+    <!-- Pricing Tiers -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Free Tier -->
+        <div class="bg-github-gray border-2 border-github-border rounded-lg p-8 flex flex-col">
+            <h3 class="text-2xl font-semibold text-github-text">Hobbyist</h3>
+            <p class="text-github-secondary mt-2">For personal projects and open-source</p>
+            <div class="mt-6">
+                <span class="text-5xl font-bold">$0</span>
+                <span class="text-github-secondary">/ forever</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>10 generations / day</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to Gemini AI</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Standard code analysis</li>
+            </ul>
+            <button class="mt-8 w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200">Get Started</button>
+        </div>
+
+        <!-- Pro Tier -->
+        <div class="bg-github-gray border-2 border-blue-500 rounded-lg p-8 flex flex-col relative">
+            <span class="absolute top-0 -translate-y-1/2 bg-blue-500 text-white px-3 py-1 text-sm font-semibold rounded-full">Most Popular</span>
+            <h3 class="text-2xl font-semibold text-github-text">Developer</h3>
+            <p class="text-github-secondary mt-2">For professional developers and teams</p>
+            <div class="mt-6">
+                <span class="text-5xl font-bold">$10</span>
+                <span class="text-github-secondary">/ month</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited generations</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to Gemini & Groq AI</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority support</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to API (soon)</li>
+            </ul>
+            <button class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">Go Pro</button>
+        </div>
+
+        <!-- Enterprise Tier -->
+        <div class="bg-github-gray border-2 border-github-border rounded-lg p-8 flex flex-col">
+            <h3 class="text-2xl font-semibold text-github-text">Enterprise</h3>
+            <p class="text-github-secondary mt-2">For large organizations and custom needs</p>
+            <div class="mt-6">
+                <span class="text-4xl font-bold">Custom</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>All Pro features</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>On-premise deployment</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dedicated support & SLA</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Custom integrations</li>
+            </ul>
+            <a href="{% url 'contact' %}" class="mt-8 w-full text-center py-3 bg-github-dark border border-github-border hover:bg-github-darker text-github-text font-semibold rounded-lg transition-colors duration-200">Contact Sales</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

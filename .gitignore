@@ -33,9 +33,7 @@ yarn.lock
 *.css.map
 generator/static/css/output.css
 
-# Migrations (optional: only if generated later or unneeded in repo)
-generator/migrations/
-!generator/migrations/__init__.py
+
 
 # OS Trash and backups
 *.bak

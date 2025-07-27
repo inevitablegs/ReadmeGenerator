@@ -1,0 +1,2309 @@
+Directory structure:
+└── README.md-generator/
+    ├── README.md
+    ├── manage.py
+    ├── requirements.txt
+    ├── generator/
+    │   ├── __init__.py
+    │   ├── admin.py
+    │   ├── apps.py
+    │   ├── forms.py
+    │   ├── models.py
+    │   ├── services.py
+    │   ├── urls.py
+    │   ├── views.py
+    │   ├── static/
+    │   │   └── css/
+    │   │       └── input.css
+    │   └── templates/
+    │       ├── about.html
+    │       ├── api.html
+    │       ├── base.html
+    │       ├── contact.html
+    │       ├── documentation.html
+    │       ├── edit.html
+    │       ├── features.html
+    │       ├── help_center.html
+    │       ├── home.html
+    │       ├── pricing.html
+    │       └── result.html
+    └── readmegen/
+        ├── __init__.py
+        ├── asgi.py
+        ├── settings.py
+        ├── urls.py
+        └── wsgi.py
+
+================================================
+FILE: README.md
+================================================
+# README.md-Generator 📝
+
+A Python-based application for generating professional-quality README.md files for GitHub repositories.  This tool streamlines the process of creating well-structured and informative README files, ensuring consistency and clarity across your projects.
+
+## Description
+
+This project provides a robust and flexible solution for automating the creation of README.md files.  It leverages Django's framework for structuring the application and allows for customization to fit diverse project needs. The generator can handle various aspects of a README, from project description and feature lists to installation instructions and contributing guidelines.  This eliminates the manual effort involved in crafting README files, allowing developers to focus on core project development.  The application is designed to be easily extensible, allowing for the addition of new features and functionalities as required.  Future development will include support for more advanced README features, such as interactive elements and dynamic content generation.
+
+
+## Features ✨
+
+*   Automated generation of README.md files.
+*   Customizable templates for different project types.
+*   Support for various markdown features.
+*   Easy integration with existing workflows.
+*   Clear and concise output.
+*   Extensible architecture for future enhancements.
+*   Comprehensive error handling and logging.
+*   Support for multiple programming languages.
+
+
+## Installation 📦
+
+1.  Clone the repository:
+
+    ```bash
+    git clone https://github.com/yourusername/README.md-Generator.git
+    ```
+
+2.  Navigate to the project directory:
+
+    ```bash
+    cd README.md-Generator
+    ```
+
+3.  Create a virtual environment (recommended):
+
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+4.  Install dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  Run migrations:
+
+    ```bash
+    python manage.py migrate
+    ```
+
+
+## Usage ⚙️
+
+After installation, you can run the application using the following command:
+
+```bash
+python manage.py runserver
+```
+
+*(Further usage instructions will be added here, detailing the application's interface and input parameters.)*
+
+
+## Configuration ⚙️
+
+The application utilizes settings defined in `readmegen/settings.py`.  Environment variables can be used to override these settings.  Further configuration options will be documented in future releases.  *(Specific environment variables and their purpose will be detailed here.)*
+
+
+## Technologies 🛠️
+
+| Technology       | Description                                      |
+|-----------------|--------------------------------------------------|
+| Python           | Programming language                             |
+| Django           | Web framework                                     |
+| Markdown         | Markup language for formatting README files       |
+| Git              | Version control system                           |
+| PostgreSQL/MySQL/SQLite | Database (choose one; default is SQLite)      |
+
+
+## API Reference 🔗
+
+*(This section will be populated with details on any APIs exposed by the application.)*
+
+
+## Screenshots 📸
+
+*[Placeholder for screenshots of the application's interface]*
+
+
+## Contributing 🤝
+
+Contributions are welcome! Please follow these guidelines:
+
+1.  Fork the repository.
+2.  Create a new branch for your feature.
+3.  Commit your changes with clear and concise messages.
+4.  Submit a pull request.
+
+
+## License 📄
+
+*[This project is currently unlicensed.  Choose an appropriate license (e.g., MIT, GPL) and include the license text here.]*
+
+
+
+================================================
+FILE: manage.py
+================================================
+#!/usr/bin/env python
+"""Django's command-line utility for administrative tasks."""
+import os
+import sys
+
+
+def main():
+    """Run administrative tasks."""
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readmegen.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+
+
+if __name__ == '__main__':
+    main()
+
+
+
+================================================
+FILE: requirements.txt
+================================================
+django==5.2.4
+django-widget-tweaks==1.5.0
+google-generativeai==0.8.4
+groq==0.9.0
+markdown==3.7
+PyGithub==2.6.1
+python-dotenv==1.0.1
+gunicorn==23.0.0
+
+
+================================================
+FILE: generator/__init__.py
+================================================
+
+
+
+================================================
+FILE: generator/admin.py
+================================================
+from django.contrib import admin
+
+# Register your models here.
+
+
+
+================================================
+FILE: generator/apps.py
+================================================
+from django.apps import AppConfig
+
+
+class GeneratorConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'generator'
+
+
+
+================================================
+FILE: generator/forms.py
+================================================
+from django import forms
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+import re
+
+class RepoForm(forms.Form):
+    repo_url = forms.URLField(
+        label='GitHub Repository URL',
+        widget=forms.URLInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'https://github.com/username/repo',
+            'autocomplete': 'off'
+        }),
+        help_text="Enter the full URL of the GitHub repository"
+    )
+
+    custom_prompt = forms.CharField(
+        label='Custom Instructions (Optional)',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Add features, change tone, add badges...'
+        }),
+        required=False,
+        help_text="Enter additional instructions for the README generation"
+    )
+
+    def clean_repo_url(self):
+        url = self.cleaned_data['repo_url']
+        if not re.match(r'^https?://github\.com/[^/]+/[^/]+/?$', url):
+            raise ValidationError("Please enter a valid GitHub repository URL")
+        return url
+
+
+
+================================================
+FILE: generator/models.py
+================================================
+from django.db import models
+
+# Create your models here.
+from django.db import models
+from django.core.validators import URLValidator
+
+class Repository(models.Model):
+    url = models.URLField(
+        max_length=255,
+        validators=[URLValidator()],
+        unique=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    readme_content = models.TextField(blank=True)
+    language_stats = models.JSONField(default=dict, blank=True)
+    topics = models.JSONField(default=list, blank=True)
+    
+    def __str__(self):
+        return self.url
+    
+    class Meta:
+        verbose_name_plural = "Repositories"
+        ordering = ['-created_at']
+
+
+================================================
+FILE: generator/services.py
+================================================
+import os
+import re
+import google.generativeai as genai
+from github import Github
+from dotenv import load_dotenv
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from markdown import markdown
+from html.parser import HTMLParser
+from groq import Groq
+load_dotenv()
+
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# --- Helper class to validate markdown content ---
+class HTMLFilter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.text = []
+
+    def handle_data(self, d):
+        self.text.append(d)
+
+    def get_data(self):
+        return ''.join(self.text)
+
+def validate_markdown(content):
+    try:
+        html = markdown(content)
+        f = HTMLFilter()
+        f.feed(html)
+        clean_text = f.get_data().strip()
+        if not clean_text or len(clean_text) < 50:
+            raise ValueError("Generated content is too short or invalid")
+        return content
+    except Exception as e:
+        raise ValidationError(f"Markdown validation failed: {str(e)}")
+
+def extract_repo_info(url):
+    parts = url.strip('/').split('/')
+    if len(parts) < 2:
+        raise ValueError("Invalid GitHub URL")
+    return parts[-2], parts[-1]
+
+def log_repo_meta(repo_data):
+    print("\n🧾 Repo Metadata Debug:")
+    for k, v in repo_data.items():
+        if isinstance(v, (dict, list)):
+            print(f"{k}: {len(v)} items")
+        else:
+            print(f"{k}: {v}")
+
+def get_repo_data(owner, repo_name):
+    g = Github(os.getenv('GITHUB_TOKEN'))
+    repo = g.get_repo(f"{owner}/{repo_name}")
+
+    data = {
+        'description': repo.description or 'No description provided.',
+        'languages': repo.get_languages(),
+        'topics': repo.get_topics(),
+        'license': None,
+        'stars': repo.stargazers_count,
+        'forks': repo.forks_count,
+        'watchers': repo.watchers_count,
+        'default_branch': repo.default_branch,
+    }
+
+    try:
+        license_info = repo.get_license()
+        if license_info:
+            data['license'] = license_info.license.key if license_info.license else None
+    except Exception:
+        pass
+
+    try:
+        readme = repo.get_readme()
+        data['existing_readme'] = readme.decoded_content.decode('utf-8')
+    except:
+        data['existing_readme'] = ""
+
+    data['ingestion_summary'] = get_repo_ingestion_summary(repo)
+    return data
+
+def get_repo_ingestion_summary(repo, max_files=50):
+    """Smart ingestion of all project types: Python, JS, Node, Web, Docker, etc."""
+    important_files = []
+    seen_paths = set()
+
+    try:
+        contents = repo.get_contents("")
+        while contents:
+            item = contents.pop(0)
+
+            if item.path in seen_paths:
+                continue
+            seen_paths.add(item.path)
+
+            if item.type == "dir":
+                try:
+                    contents.extend(repo.get_contents(item.path))
+                except Exception:
+                    continue
+            elif item.type == "file":
+                ext = os.path.splitext(item.name)[-1].lower()
+                important_names = [
+                    "README.md", "requirements.txt", "setup.py", "Dockerfile", "Makefile",
+                    "package.json", "pyproject.toml", ".env.example", "config.json",
+                    "docker-compose.yml", "Procfile"
+                ]
+                important_exts = [
+                    ".py", ".js", ".ts", ".html", ".yml", ".yaml", ".json", ".sh", ".cpp", ".java"
+                ]
+
+                if item.name in important_names or ext in important_exts:
+                    try:
+                        content = item.decoded_content.decode("utf-8", errors="ignore")
+                        important_files.append({
+                            "path": item.path,
+                            "language": ext or "text",
+                            "content": content[:1500]
+                        })
+                    except Exception:
+                        continue
+
+            if len(important_files) >= max_files:
+                break
+
+    except Exception as e:
+        important_files.append({"error": f"Ingestion error: {str(e)}"})
+
+    return important_files
+
+
+
+def generate_with_groq(prompt, model_name="llama-3.3-70b-versatile"):
+    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=1,
+        max_tokens=4096 
+    )
+
+    return response.choices[0].message.content.strip()
+
+
+
+
+def generate_readme_content(repo_data, user_prompt="", repo_url="", backend="gemini"):
+    file_summary = ""
+    for file in repo_data.get('ingestion_summary', []):
+        if "path" in file and "content" in file:
+            file_summary += f"\n📄 **{file['path']}**:\n```\n{file['content']}\n```\n"
+
+    prompt = f"""
+You are a professional technical writer specializing in GitHub documentation.
+
+Generate a clean, well-formatted `README.md` file for the following repository:
+
+---
+
+📁 **Repository Metadata**:
+- **Name**: {repo_data.get('name')}
+- **Description**: {repo_data.get('description') or 'No description provided'}
+- **Languages**: {', '.join(repo_data.get('languages', {}).keys())}
+- **Stars**: ⭐ {repo_data.get('stars', 0)}
+- **Forks**: 🍴 {repo_data.get('forks', 0)}
+- **License**: {repo_data.get('license', 'Not specified')}
+- **GitHub URL**: {repo_url}
+
+---
+
+🧠 **Project Ingestion Snapshot**:
+{file_summary or 'No files available'}
+
+---
+
+📝 **User’s Custom Prompt**:
+{user_prompt if user_prompt else 'N/A'}
+
+---
+
+📌 **README Must Include**:
+1. Project title with emoji
+2. Description: 2-4 paragraphs
+3. Features (bullet points)
+4. Installation instructions (include real repo URL: `git clone {repo_url}`)
+5. Usage with code examples
+6. Configuration if needed
+7. Technologies table
+8. Explain technologies used (e.g., Python, Django, React)
+9. Screenshots (placeholder)
+10. Contributing guidelines
+11. Do **not** include folder structure
+
+---
+
+🧾 **Formatting Rules**:
+- Use GitHub-flavored Markdown
+- Emojis in headings
+- Code blocks with language syntax like ```python``` or ```bash``
+- Limit lines to 100 chars
+- Use tables for technologies
+- Clear, professional tone
+"""
+
+    if backend == "groq":
+        raw_md = generate_with_groq(prompt)
+    else:
+        # Default: Gemini
+        response = model.generate_content(
+            prompt,
+            safety_settings={
+                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
+                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
+                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
+                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
+            },
+            generation_config={
+                'temperature': 0.7,
+                'top_p': 0.9,
+                'max_output_tokens': 2048,
+            }
+        )
+        raw_md = response.text
+
+    if not raw_md:
+        raise ValueError(f"{backend.upper()} did not return any content")
+
+    return validate_markdown(raw_md)
+
+def generate_readme(repo_url, user_prompt="", backend="gemini"):
+    # Include backend in cache key to separate results
+    cache_key = f"readme_{backend}_{repo_url}_{user_prompt}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    try:
+        owner, repo_name = extract_repo_info(repo_url)
+        repo_data = get_repo_data(owner, repo_name)
+        repo_data['name'] = repo_name
+
+        log_repo_meta(repo_data)  # Optional logging, keep if useful
+
+        readme_content = generate_readme_content(
+            repo_data,
+            user_prompt=user_prompt,
+            repo_url=repo_url,
+            backend=backend
+        )
+
+        cache.set(cache_key, readme_content, timeout=86400)
+        return readme_content
+
+    except Exception as e:
+        raise Exception(f"Failed to generate README: {str(e)}")
+
+
+# Validate GitHub token on startup
+try:
+    github_token = os.getenv('GITHUB_TOKEN')
+    if github_token:
+        g = Github(github_token)
+        user = g.get_user()
+        print(f"✅ GitHub token validated: {user.login}")
+    else:
+        print("⚠️ GITHUB_TOKEN not set")
+except Exception as e:
+    print(f"⚠️ GitHub token validation failed: {str(e)}")
+
+
+
+================================================
+FILE: generator/urls.py
+================================================
+# generator/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('features/', views.features, name='features'),
+    path('pricing/', views.pricing, name='pricing'),
+    path('documentation/', views.documentation, name='documentation'),
+    path('help-center/', views.help_center, name='help_center'),
+    path('contact/', views.contact, name='contact'),
+    path('api/', views.api, name='api'),
+    path('edit/', views.edit_readme, name='edit_readme'),
+    path('edit/save/', views.save_readme, name='save_readme'),
+    path('result/', views.result, name='result'),
+]
+
+
+================================================
+FILE: generator/views.py
+================================================
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_http_methods
+from .forms import RepoForm
+from .services import generate_readme
+from .models import Repository
+from markdown import markdown
+from urllib.parse import unquote
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+
+@never_cache
+@require_http_methods(["GET", "POST"])
+def home(request):
+    if request.method == 'POST':
+        form = RepoForm(request.POST)
+        if form.is_valid():
+            try:
+                repo_url = form.cleaned_data['repo_url']
+                user_prompt = form.cleaned_data.get('custom_prompt', '')
+                backend = request.POST.get("backend", "gemini")
+                
+                # Get or create the repository first
+                repo, created = Repository.objects.get_or_create(url=repo_url)
+                
+                # Generate the README content
+                readme_content = generate_readme(repo_url, user_prompt, backend)
+                
+                # Update the repository with new content
+                repo.readme_content = readme_content
+                repo.save()
+
+                # Convert to HTML for preview
+                readme_html = markdown(
+                    readme_content,
+                    extensions=['fenced_code', 'codehilite', 'tables'],
+                    output_format='html5'
+                )
+
+                return render(request, 'result.html', {
+                    'readme': readme_html,           # rendered HTML
+                    'raw_readme': readme_content,    # original markdown
+                    'repo_url': repo_url
+                })
+            except Exception as e:
+                error_msg = str(e)
+                if "404" in error_msg and "license" in error_msg:
+                    messages.warning(request, "License info not found. Generated README without license.")
+                else:
+                    messages.error(request, f"Error: {error_msg}")
+                return redirect('home')
+        else:
+            messages.error(request, "Please enter a valid GitHub repository URL")
+    else:
+        form = RepoForm()
+
+    # Always show the 5 most recent repositories
+    return render(request, 'home.html', {
+        'form': form,
+        'recent_repos': Repository.objects.order_by('-created_at')[:5]
+    })
+
+@never_cache
+def about(request):
+    return render(request, 'about.html')
+
+@never_cache
+@require_http_methods(["GET"])
+def edit_readme(request):
+    repo_url = unquote(request.GET.get('repo', ''))
+    try:
+        repo = Repository.objects.get(url=repo_url)
+        return render(request, 'edit.html', {
+            'readme_content': repo.readme_content,
+            'repo_url': repo_url
+        })
+    except Repository.DoesNotExist:
+        messages.error(request, "Repository not found")
+        return redirect('home')
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_readme(request):
+    try:
+        repo_url = request.POST.get('repo_url')
+        content = request.POST.get('readme_content')
+
+        repo = Repository.objects.get(url=repo_url)
+        repo.readme_content = content
+        repo.save()
+
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+
+
+@never_cache
+@require_http_methods(["GET"])
+def result(request):
+    repo_url = unquote(request.GET.get('repo', ''))
+    try:
+        repo = Repository.objects.get(url=repo_url)
+        readme_html = markdown(repo.readme_content)
+        return render(request, 'result.html', {
+            'readme': readme_html,
+            'raw_readme': repo.readme_content,
+            'repo_url': repo_url
+        })
+    except Repository.DoesNotExist:
+        messages.error(request, "Repository not found")
+        return redirect('home')
+
+# --- New Views for Footer and Nav Links ---
+
+@never_cache
+def features(request):
+    return render(request, 'features.html')
+
+@never_cache
+def pricing(request):
+    return render(request, 'pricing.html')
+
+@never_cache
+def documentation(request):
+    return render(request, 'documentation.html')
+
+@never_cache
+def help_center(request):
+    return render(request, 'help_center.html')
+
+@never_cache
+def contact(request):
+    # In a real app, you would handle form submission here
+    return render(request, 'contact.html')
+
+@never_cache
+def api(request):
+    return render(request, 'api.html')
+
+
+================================================
+FILE: generator/static/css/input.css
+================================================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+================================================
+FILE: generator/templates/about.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">About README Generator</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            We're passionate about streamlining developer workflows. Our mission is to eliminate the tedious task of writing documentation so you can focus on what matters: building great software.
+        </p>
+    </div>
+
+    <!-- Our Mission Section -->
+    <div class="bg-github-gray border border-github-border rounded-lg p-8">
+        <h2 class="text-2xl font-bold text-github-text mb-4">Our Mission</h2>
+        <p class="text-github-secondary leading-relaxed">
+            Writing a good README is crucial for project success, yet it's often overlooked or rushed. A well-documented project attracts more users and contributors. This tool was built to automate the creation of high-quality, professional README files by intelligently analyzing a project's codebase. We leverage the power of advanced AI models like Google's Gemini and Llama 3 via Groq to understand the repository's structure, dependencies, and purpose, generating comprehensive documentation in seconds.
+        </p>
+    </div>
+
+    <!-- Technology Stack -->
+    <div>
+        <h2 class="text-3xl font-bold text-github-text text-center mb-8">Technology We Use</h2>
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-github-text mb-2">Backend</h3>
+                <p class="text-github-secondary">Powered by Python and the robust Django framework, ensuring a scalable and secure foundation.</p>
+            </div>
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-github-text mb-2">AI Engines</h3>
+                <p class="text-github-secondary">Utilizes Google Gemini and Groq (Llama 3) for state-of-the-art code analysis and text generation.</p>
+            </div>
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-github-text mb-2">Frontend</h3>
+                <p class="text-github-secondary">A clean, responsive interface built with Tailwind CSS, designed for a seamless user experience.</p>
+            </div>
+            <div class="bg-github-gray border border-github-border rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-github-text mb-2">Database</h3>
+                <p class="text-github-secondary">Flexible database support including SQLite for development and PostgreSQL for production.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/api.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">API Reference</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Automate your documentation workflow. Integrate README generation directly into your tools. (Note: API is coming soon!)
+        </p>
+    </div> 
+    <!-- API Features Section -->
+    <div class="bg-github-gray border border-github-border rounded-lg p-8">
+        <h2 class="text-2xl font-bold text-github-text mb-4">API Features</h2>
+        <ul class="list-disc list-inside space-y-3 text-github-secondary">
+            <li>Generate README files programmatically</li>
+            <li>Supports multiple AI backends (Gemini, Groq)</li>
+            <li>Customizable prompts for tailored documentation</li>
+            <li>Easy integration with CI/CD pipelines</li>
+            <li>Rate limits and usage tracking</li>
+        </ul>
+    </div>
+
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+================================================
+FILE: generator/templates/base.html
+================================================
+{% load static %} {% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>README Generator with Gemini</title>
+    <link rel="stylesheet" href="\static\css\output.css" />
+    <style>
+      /* Custom GitHub-like colors for offline use */
+      :root {
+        --github-dark: #0d1117;
+        --github-darker: #010409;
+        --github-gray: #161b22;
+        --github-border: #30363d;
+        --github-blue: #58a6ff;
+        --github-green: #3fb950;
+        --github-text: #f0f6fc;
+        --github-text-secondary: #8b949e;
+      }
+
+      .bg-github-dark {
+        background-color: var(--github-dark);
+      }
+      .bg-github-gray {
+        background-color: var(--github-gray);
+      }
+      .bg-github-darker {
+        background-color: var(--github-darker);
+      }
+      .text-github-text {
+        color: var(--github-text);
+      }
+      .text-github-secondary {
+        color: var(--github-text-secondary);
+      }
+      .text-github-blue {
+        color: var(--github-blue);
+      }
+      .text-github-green {
+        color: var(--github-green);
+      }
+      .border-github-border {
+        border-color: var(--github-border);
+      }
+      .hover\:text-github-blue:hover {
+        color: var(--github-blue);
+      }
+      .hover\:bg-github-gray:hover {
+        background-color: var(--github-gray);
+      }
+      .gradient-brand {
+        background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      }
+      /* Modern dark scrollbars */
+      .markdown-body pre code::-webkit-scrollbar {
+        height: 8px;
+      }
+      .markdown-body pre code::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 4px;
+      }
+      .markdown-body pre code::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+
+      /* Firefox */
+      .markdown-body pre code {
+        scrollbar-width: thin;
+        scrollbar-color: #444 transparent;
+      }
+    </style>
+    <!-- Highlight.js GitHub style -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Highlight.js script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- GitHub Markdown CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css"
+    />
+
+    <!-- Highlight.js GitHub style -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  </head>
+  <body class="bg-github-dark text-github-text min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-github-gray border-b border-github-border sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-2">
+              <a
+                href="{% url 'home' %}"
+                class="flex items-center space-x-2 text-github-text hover:text-github-blue transition-colors duration-200"
+              >
+                <div
+                  class="w-8 h-8 gradient-brand rounded-md flex items-center justify-center text-white font-bold text-lg"
+                >
+                  R
+                </div>
+                <span class="text-lg font-semibold">README Generator</span>
+              </a>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-6">
+              <a
+                href="{% url 'home' %}"
+                class="text-github-text hover:text-github-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                Home
+              </a>
+              <a
+                href="{% url 'about' %}"
+                class="text-github-text hover:text-github-blue px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                About
+              </a>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <div
+              class="hidden md:flex items-center space-x-1 text-github-secondary text-sm"
+            >
+              <span>âš¡</span>
+              <span>Powered by Gemini & Groq</span>
+            </div>
+            <a
+              href="https://github.com/inevitablegs/ReadmeGenerator"
+              target="_blank"
+              class="text-github-secondary hover:text-github-text transition-colors duration-200"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-6">
+          {% for message in messages %}
+          <div
+            class="bg-blue-900 bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-4 mb-4"
+          >
+            <p class="text-blue-300">{{ message }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Content Block -->
+        <div class="space-y-8">
+          {% block content %}
+          <!-- Default content will be overridden by child templates -->
+          {% endblock %}
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-github-darker border-t border-github-border mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid md:grid-cols-4 gap-8">
+          <div class="md:col-span-2">
+            <div class="flex items-center space-x-2 mb-4">
+              <div
+                class="w-8 h-8 gradient-brand rounded-md flex items-center justify-center text-white font-bold text-lg"
+              >
+                R
+              </div>
+              <span class="text-lg font-semibold text-github-text"
+                >README Generator</span
+              >
+            </div>
+            <p class="text-github-secondary mb-4">
+              AI-powered README generation for GitHub repositories. Create
+              professional documentation in seconds with Gemini and Groq.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-github-text font-semibold mb-4">Product</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="{% url 'home' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'about' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >About</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'features' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Features</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'pricing' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Pricing</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-github-text font-semibold mb-4">Support</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="{% url 'documentation' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Documentation</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'help_center' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Help Center</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'contact' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >Contact</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'api' %}"
+                  class="text-github-secondary hover:text-github-text transition-colors duration-200"
+                  >API</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-github-border mt-8 pt-8 text-center">
+          <p class="text-github-secondary">
+            Â© 2024 README Generator. Built with Django and powered by AI.
+          </p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("pre code").forEach((block) => {
+          hljs.highlightElement(block);
+        });
+      });
+    </script>
+  </body>
+</html>
+
+
+================================================
+FILE: generator/templates/contact.html
+================================================
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Get in Touch</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Weâ€™d love to hear from you. Whether you have a question, feedback, or a feature request, feel free to reach out.
+        </p>
+    </div>
+
+    <!-- Contact Form & Info -->
+    <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 bg-github-gray border border-github-border rounded-lg p-8">
+        <!-- Contact Info -->
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-lg font-semibold text-github-text">Contact Information</h3>
+                <p class="text-github-secondary">Fill out the form or email us directly.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="text-github-secondary">sonawaneganu3101@gmail.com</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="text-github-secondary">Manchar, Pune</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <form class="space-y-6">
+            <div class="space-y-2">
+                <label for="name" class="block text-sm font-medium text-github-text">Full Name</label>
+                <input type="text" id="name" name="name" class="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="space-y-2">
+                <label for="email" class="block text-sm font-medium text-github-text">Email Address</label>
+                <input type="email" id="email" name="email" class="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="space-y-2">
+                <label for="message" class="block text-sm font-medium text-github-text">Message</label>
+                <textarea id="message" name="message" rows="4" class="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            </div>
+            <button type="submit" class="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">Send Message</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/documentation.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Documentation</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Everything you need to know to generate the perfect README for your project.
+        </p>
+    </div>
+
+    <div class="bg-github-gray border border-github-border rounded-lg p-8 max-w-4xl mx-auto space-y-8">
+        <!-- How It Works -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">How It Works</h2>
+            <p class="text-github-secondary leading-relaxed">Our generator follows a simple three-step process:
+            <ol class="list-decimal list-inside mt-4 space-y-2 text-github-secondary">
+                <li><strong>Ingest:</strong> We analyze the files in your public GitHub repository to understand its structure, languages, and dependencies.</li>
+                <li><strong>Analyze:</strong> Our AI engine processes this information, along with any custom instructions you provide, to create a detailed project profile.</li>
+                <li><strong>Generate:</strong> Using this profile, the AI writes a clean, comprehensive, and well-formatted `README.md` file tailored to your project.</li>
+            </ol>
+            </p>
+        </div>
+
+        <!-- Using the Generator -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">Using the Generator</h2>
+            <p class="text-github-secondary leading-relaxed">
+                1. <strong>Enter URL:</strong> On the <a href="{% url 'home' %}" class="text-blue-400 hover:underline">home page</a>, paste the full URL of your public GitHub repository.
+                <br>
+                2. <strong>Select Model:</strong> Choose between `Gemini` (balanced) or `Groq` (fast) AI models.
+                <br>
+                3. <strong>Add Instructions (Optional):</strong> Use the custom instructions box to guide the AI. For example: "Focus on the data processing pipeline" or "Add a section on API endpoints."
+                <br>
+                4. <strong>Generate:</strong> Click the "Generate README" button and wait for the magic to happen.
+            </p>
+        </div>
+
+        <!-- Editing and Exporting -->
+        <div>
+            <h2 class="text-2xl font-semibold text-github-blue mb-3">Editing & Exporting</h2>
+            <p class="text-github-secondary leading-relaxed">
+                After generation, you'll be taken to the result page. From there, you can:
+                <ul class="list-disc list-inside mt-4 space-y-2 text-github-secondary">
+                    <li><strong>Preview</strong> the rendered HTML.</li>
+                    <li><strong>View</strong> the raw Markdown source.</li>
+                    <li><strong>Copy</strong> the markdown to your clipboard.</li>
+                    <li><strong>Download</strong> the `README.md` file directly.</li>
+                    <li><strong>Edit</strong> the content in our live editor to make final adjustments.</li>
+                </ul>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/edit.html
+================================================
+{% extends 'base.html' %}
+{% load widget_tweaks %} 
+{% load static %} 
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center space-x-3 pb-6 border-b border-github-border">
+    <svg
+      class="w-6 h-6 text-github-secondary"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+      ></path>
+    </svg>
+    <h3 class="text-2xl font-bold text-github-text">
+      Edit & Preview README.md
+    </h3>
+  </div>
+
+  <!-- Editor and Preview Grid -->
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- Markdown Editor -->
+    <div class="space-y-4">
+      <div
+        class="bg-github-gray border border-github-border rounded-lg overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker"
+        >
+          <div class="flex items-center space-x-2">
+            <svg
+              class="w-4 h-4 text-github-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              ></path>
+            </svg>
+            <label class="text-sm font-medium text-github-text"
+              >Live Preview</label
+            >
+          </div>
+          <span
+            class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-xs"
+            >Live</span
+          >
+        </div>
+        <textarea
+          id="editor"
+          class="w-full p-4 bg-github-dark text-github-text border-0 rounded-lg resize-none outline-none custom-scrollbar editor-container"
+          placeholder="Edit your README.md here..."
+        >{{ readme_content }}</textarea>
+
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="space-y-4">
+      <div
+        class="bg-github-gray border border-github-border rounded-lg overflow-hidden"
+      >
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-github-border bg-github-darker"
+        >
+          <div class="flex items-center space-x-2">
+            <svg
+              class="w-4 h-4 text-github-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              ></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              ></path>
+            </svg>
+            <label class="text-sm font-medium text-github-text"
+              >Live Preview</label
+            >
+          </div>
+          <span
+            class="text-github-secondary bg-green-900 bg-opacity-30 px-2 py-1 rounded text-xs"
+            >Live</span
+          >
+        </div>
+        <div class="p-4">
+          <div id="previewArea" class="markdown-body custom-scrollbar preview-container overflow-y-auto">
+            Live preview will appear here...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div
+    class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6 border-t border-github-border"
+  >
+    <a
+      href="{% url 'result' %}?repo={{ repo_url|urlencode }}"
+      class="flex items-center space-x-2 text-github-secondary hover:text-github-text transition-colors duration-200"
+    >
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
+      </svg>
+      <span>Back to Result</span>
+    </a>
+
+    <div class="flex items-center space-x-3">
+      <a
+        href="#"
+        onclick="downloadReadme()"
+        class="px-4 py-2 bg-github-gray border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center space-x-2"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          ></path>
+        </svg>
+        <span>Download</span>
+      </a>
+      <button
+        onclick="saveChanges()"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+          ></path>
+        </svg>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </div>
+
+  
+  <!-- Notification Toast -->
+  <div
+    id="notification-toast"
+    class="fixed bottom-4 right-4 transform translate-x-full transition-transform duration-300 z-50"
+  >
+    <div
+      class="bg-github-gray border border-github-border rounded-lg p-4 shadow-lg min-w-80"
+    >
+      <div class="flex items-center space-x-3">
+        <div id="toast-icon" class="text-lg"></div>
+        <div>
+          <div
+            id="toast-title"
+            class="text-sm font-medium text-github-text"
+          ></div>
+          <div id="toast-message" class="text-xs text-github-secondary"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  const editor = document.getElementById("editor");
+  const preview = document.getElementById("previewArea");
+
+  function updatePreview() {
+    if (typeof marked !== "undefined") {
+      const html = marked.parse(editor.value);
+      preview.innerHTML = html;
+
+      // Highlight code blocks
+      document.querySelectorAll("#previewArea pre code").forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    } else {
+      preview.innerHTML = '<p class="text-github-secondary">Loading preview...</p>';
+    }
+  }
+
+
+
+  function showToast(type, title, message) {
+    const toast = document.getElementById("notification-toast");
+    const icon = document.getElementById("toast-icon");
+    const titleEl = document.getElementById("toast-title");
+    const messageEl = document.getElementById("toast-message");
+    icon.innerHTML =
+      type === "success"
+        ? '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 6a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+        : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h.01M21.752 12.002a9.003 9.003 0 11-18.004-.001A9.003 9.003 0 0121.752 12z"></path></svg>';
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    toast.classList.remove("translate-x-full");
+    setTimeout(() => {
+      toast.classList.add("translate-x-full");
+    }, 3000);
+  }
+  function downloadReadme() {
+    const blob = new Blob([editor.value], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "README.md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function saveChanges() {
+    // Simulate saving changes
+    showToast(
+      "success",
+      "Changes Saved",
+      "Your README.md has been saved successfully."
+    );
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    editor.addEventListener("input", updatePreview);
+    updatePreview(); // Initial preview update
+  });
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">
+<style>
+    .markdown-body {
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 45px;
+    }
+    @media (max-width: 767px) {
+        .markdown-body {
+            padding: 15px;
+        }
+    }
+    .markdown-body pre code {
+        display: block;
+        overflow-x: auto;
+        padding: 1em;
+    }
+    
+    /* Custom Scrollbar Styling */
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--github-border) var(--github-dark);
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: var(--github-dark);
+        border-left: 1px solid var(--github-border);
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--github-gray);
+        border: 3px solid var(--github-dark);
+        border-radius: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--github-border);
+    }
+
+    /* Editor and Preview Container Styles */
+    .editor-container, .preview-container {
+        height: calc(100vh - 300px);
+        min-height: 400px;
+        max-height: 800px;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/features.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Powerful Features</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Our generator is packed with features designed to create the perfect README for any project.
+        </p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Smart Code Ingestion</h3>
+            <p class="text-github-secondary">The AI analyzes your entire repositoryâ€”code files, dependencies (like `requirements.txt` or `package.json`), and folder structureâ€”to understand your project's purpose and technology stack.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Multi-Backend AI</h3>
+            <p class="text-github-secondary">Choose between powerful AI models. Use Google's Gemini for balanced performance or Groq's Llama 3 for blazing-fast generation, giving you flexibility and control.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Custom Instructions</h3>
+            <p class="text-github-secondary">Guide the AI with custom prompts. Ask it to add specific feature sections, adopt a certain tone, include badges, or highlight key aspects of your project.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Professional Templates</h3>
+            <p class="text-github-secondary">Generates a well-structured README with all essential sections: description, features, installation, usage, technologies, contributing, and more.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">Live Editor & Preview</h3>
+            <p class="text-github-secondary">Fine-tune your generated README in a side-by-side markdown editor with a live preview. What you see is what you get.</p>
+        </div>
+        <div class="bg-github-gray border border-github-border rounded-lg p-6 space-y-3">
+            <h3 class="text-xl font-semibold text-github-blue">One-Click Export</h3>
+            <p class="text-github-secondary">Easily copy the raw markdown to your clipboard or download the `README.md` file, ready to be committed to your repository.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/help_center.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Help Center</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Have questions? We've got answers. Here are some frequently asked questions.
+        </p>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="max-w-3xl mx-auto space-y-4">
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">Is this service free to use?</summary>
+            <p class="text-github-secondary mt-3">Yes, our basic service is completely free for open-source and personal projects, with a generous daily limit. We plan to offer paid plans with higher limits and advanced features in the future.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">What AI models are used?</summary>
+            <p class="text-github-secondary mt-3">We use Google's `Gemini-1.5-Flash` for its strong analytical capabilities and `Llama 3` via the Groq API for incredible speed. You can choose which model to use on the home page.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">Does it work with private repositories?</summary>
+            <p class="text-github-secondary mt-3">Currently, the tool only supports public GitHub repositories due to API limitations. Support for private repos via GitHub App authentication is on our roadmap.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">The generated README has some inaccuracies. What can I do?</summary>
+            <p class="text-github-secondary mt-3">AI is not perfect. If you find any issues, you can use the 'Edit' feature on the results page to make corrections. You can also try regenerating with a more specific custom prompt to guide the AI better.</p>
+        </details>
+        <details class="bg-github-gray border border-github-border rounded-lg p-4 cursor-pointer">
+            <summary class="font-semibold text-github-text">How is my data used?</summary>
+            <p class="text-github-secondary mt-3">We fetch your code for analysis and pass it to the AI provider (Google or Groq). We cache the generated READMEs to speed up subsequent requests, but we do not store your code or use it for any other purpose.</p>
+        </details>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/home.html
+================================================
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Form Section -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-github-gray border border-github-border rounded-lg p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-github-text mb-2">Generate README.md</h2>
+                <p class="text-github-secondary">Create professional documentation for your GitHub repository</p>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Repository URL -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-github-text">
+                        {{ form.repo_url.label }}
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                        </div>
+                        {{ form.repo_url|add_class:"w-full pl-10 pr-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" }}
+                    </div>
+                    {% if form.repo_url.help_text %}
+                        <p class="text-sm text-github-secondary">{{ form.repo_url.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Model Selection -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-github-text">
+                        Select AI Model
+                    </label>
+                    <div class="relative">
+                        <select name="backend" class="w-full pl-10 pr-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="gemini" selected class="bg-github-dark">Gemini Pro</option>
+                            <option value="groq" class="bg-github-dark">Groq (LLaMA3)</option>
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-github-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-sm text-github-secondary">Choose the AI model for README generation</p>
+                </div>
+
+                <!-- Custom Prompt -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-github-text">
+                        {{ form.custom_prompt.label }}
+                    </label>
+                    {{ form.custom_prompt|add_class:"w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text placeholder-github-secondary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" }}
+                    {% if form.custom_prompt.help_text %}
+                        <p class="text-sm text-github-secondary">{{ form.custom_prompt.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-4">
+                    <div class="flex items-center space-x-2 text-github-secondary text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span>AI-powered generation</span>
+                    </div>
+                    <button type="submit" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span>Generate README</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Repositories -->
+    {% if recent_repos %}
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-github-text">Recently Generated</h2>
+        <span class="text-github-secondary bg-github-gray px-3 py-1 rounded-full text-sm">
+            {{ recent_repos|length }} repositories
+        </span>
+    </div>
+
+        <!-- In generator/templates/home.html, update the card section -->
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for repo in recent_repos %}
+    <div class="bg-github-gray border border-github-border rounded-lg p-6 hover:border-github-blue transition-colors duration-200">
+        <div class="flex flex-col space-y-4">
+            <div class="w-full">
+                <div class="w-full overflow-hidden">
+                    <a href="{{ repo.url }}" target="_blank" 
+                       class="text-github-blue hover:underline font-medium block truncate" 
+                       title="{{ repo.url }}">
+                        {{ repo.url|truncatechars:35 }}
+                    </a>
+                    <div class="flex items-center space-x-2 text-github-secondary text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="truncate">{{ repo.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 pt-2 border-t border-github-border">
+                <a href="{% url 'result' %}?repo={{ repo.url|urlencode }}" class="flex-1 px-4 py-2 bg-github-dark border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200 text-sm text-center">
+                    View
+                </a>
+                <a href="{{ repo.url }}" target="_blank" class="p-2 border border-github-border rounded-md text-github-text hover:bg-github-darker transition-colors duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Tips -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-blue-900 bg-opacity-20 border border-blue-500 border-opacity-30 rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-blue-300 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Quick Tips
+            </h3>
+            <ul class="space-y-2 text-blue-200">
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">â€¢</span>
+                    Use public GitHub repository URLs for best results
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">â€¢</span>
+                    Add custom prompts to tailor the README to your needs
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-400 mr-2">â€¢</span>
+                    The AI analyzes your code structure, dependencies, and existing documentation
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+
+    form.addEventListener('submit', function() {
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<svg class="w-4 h-4 animate-spin mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Generating...';
+    });
+
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+});
+</script>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/pricing.html
+================================================
+{% extends 'base.html' %}
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-github-text mb-4">Simple & Transparent Pricing</h1>
+        <p class="text-xl text-github-secondary max-w-3xl mx-auto">
+            Start for free and scale as you grow. No hidden fees.
+        </p>
+    </div>
+
+    <!-- Pricing Tiers -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <!-- Free Tier -->
+        <div class="bg-github-gray border-2 border-github-border rounded-lg p-8 flex flex-col">
+            <h3 class="text-2xl font-semibold text-github-text">Hobbyist</h3>
+            <p class="text-github-secondary mt-2">For personal projects and open-source</p>
+            <div class="mt-6">
+                <span class="text-5xl font-bold">$0</span>
+                <span class="text-github-secondary">/ forever</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>10 generations / day</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to Gemini AI</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Standard code analysis</li>
+            </ul>
+            <button class="mt-8 w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200">Get Started</button>
+        </div>
+
+        <!-- Pro Tier -->
+        <div class="bg-github-gray border-2 border-blue-500 rounded-lg p-8 flex flex-col relative">
+            <span class="absolute top-0 -translate-y-1/2 bg-blue-500 text-white px-3 py-1 text-sm font-semibold rounded-full">Most Popular</span>
+            <h3 class="text-2xl font-semibold text-github-text">Developer</h3>
+            <p class="text-github-secondary mt-2">For professional developers and teams</p>
+            <div class="mt-6">
+                <span class="text-5xl font-bold">$10</span>
+                <span class="text-github-secondary">/ month</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Unlimited generations</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to Gemini & Groq AI</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority support</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Access to API (soon)</li>
+            </ul>
+            <button class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200">Go Pro</button>
+        </div>
+
+        <!-- Enterprise Tier -->
+        <div class="bg-github-gray border-2 border-github-border rounded-lg p-8 flex flex-col">
+            <h3 class="text-2xl font-semibold text-github-text">Enterprise</h3>
+            <p class="text-github-secondary mt-2">For large organizations and custom needs</p>
+            <div class="mt-6">
+                <span class="text-4xl font-bold">Custom</span>
+            </div>
+            <ul class="mt-8 space-y-4 text-github-secondary flex-grow">
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>All Pro features</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>On-premise deployment</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Dedicated support & SLA</li>
+                <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Custom integrations</li>
+            </ul>
+            <a href="{% url 'contact' %}" class="mt-8 w-full text-center py-3 bg-github-dark border border-github-border hover:bg-github-darker text-github-text font-semibold rounded-lg transition-colors duration-200">Contact Sales</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+================================================
+FILE: generator/templates/result.html
+================================================
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="space-y-2">
+            <h1 class="text-3xl font-bold text-github-text">Generated README</h1>
+            <p class="text-github-secondary">
+                AI-powered documentation for {{ repo_url|truncatechars:40 }}
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-4">
+            <button onclick="copyToClipboard()" class="min-w-[120px] px-4 py-2.5 bg-github-dark border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+                <span>Copy</span>
+            </button>
+            <a href="{% url 'edit_readme' %}?repo={{ repo_url|urlencode }}" class="min-w-[120px] px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <span>Edit</span>
+            </a>
+            <a href="{{ repo_url }}" target="_blank" class="min-w-[120px] px-4 py-2.5 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                <span>View Repo</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid lg:grid-cols-5 gap-8">
+        <!-- Preview Section -->
+        <div class="lg:col-span-4">
+            <div class="bg-github-gray border border-github-border rounded-xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-github-border bg-github-darker">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-github-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-github-text">Preview</h3>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-github-secondary bg-github-dark px-2 py-1 rounded">AI Generated</span>
+                        <span class="text-xs text-github-secondary">{{ raw_readme|length }} chars</span>
+                    </div>
+                </div>
+                <div class="p-0">
+                    <div id="preview-content" class="markdown-body p-6">
+                        {{ readme|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="space-y-6">
+            <!-- Download Card -->
+            <div class="bg-github-gray border border-github-border rounded-xl p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg class="w-5 h-5 text-github-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-github-text">Export</h3>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="downloadReadme()" class="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg text-github-text hover:bg-github-darker transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span>Download README.md</span>
+                    </button>
+                    <a href="{% url 'home' %}" class="w-full px-4 py-3 border border-github-border rounded-lg text-github-text hover:bg-github-gray transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>New Generation</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Repository Info -->
+            <div class="bg-github-gray border border-github-border rounded-xl p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <svg class="w-5 h-5 text-github-blue" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-github-text">Source</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="p-3 bg-github-dark rounded-lg">
+                        <p class="text-github-blue font-mono text-sm break-all">
+                            {{ repo_url }}
+                        </p>
+                    </div>
+                    <p class="text-github-secondary text-sm">GitHub repository</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Markdown -->
+    <div class="bg-github-gray border border-github-border rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-github-border bg-github-darker">
+            <h3 class="text-lg font-semibold text-github-text">Markdown Source</h3>
+            <div class="flex items-center space-x-2">
+                <button onclick="copyRawMarkdown()" class="px-3 py-1 bg-github-dark border border-github-border rounded text-github-text hover:bg-github-darker transition-colors duration-200 text-sm flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>Copy</span>
+                </button>
+            </div>
+        </div>
+        <div class="p-0">
+            <pre class="text-github-text text-sm overflow-x-auto p-6"><code>{{ raw_readme }}</code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const el = document.createElement("textarea");
+    el.value = `{{ raw_readme|escapejs }}`;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+    
+    // Show success feedback
+    const button = event.target.closest("button");
+    const originalText = button.innerHTML;
+    button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Copied!</span>';
+    setTimeout(() => {
+        button.innerHTML = originalText;
+    }, 2000);
+}
+
+function copyRawMarkdown() {
+    copyToClipboard();
+}
+
+function downloadReadme() {
+    const blob = new Blob([`{{ raw_readme|escapejs }}`], {
+        type: "text/markdown",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "README.md";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block);
+    });
+});
+</script>
+{% endblock %}
+
+
+================================================
+FILE: readmegen/__init__.py
+================================================
+
+
+
+================================================
+FILE: readmegen/asgi.py
+================================================
+"""
+ASGI config for readmegen project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+"""
+
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readmegen.settings')
+
+application = get_asgi_application()
+
+
+
+================================================
+FILE: readmegen/settings.py
+================================================
+"""
+Django settings for readmegen project.
+
+Generated by 'django-admin startproject' using Django 5.2.3.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/5.2/ref/settings/
+"""
+
+from pathlib import Path
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-&z8-k+&)zz+3xf&6046z295@nvj3addp^cf%@$vimbql2um^$j'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ["*"]
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'generator',  # Custom app for README generation
+    'widget_tweaks',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'readmegen.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'readmegen.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+STATIC_URL = 'static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'readme-gen-cache',
+    }
+}
+
+# Session settings
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+# readmegen/settings.py
+
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Or 'django.contrib.sessions.backends.cached_db'
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_SAVE_EVERY_REQUEST = True
+
+import os
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# For development
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+
+================================================
+FILE: readmegen/urls.py
+================================================
+"""
+URL configuration for readmegen project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('generator.urls')),  # Include URLs from the generator app
+]
+
+
+
+================================================
+FILE: readmegen/wsgi.py
+================================================
+"""
+WSGI config for readmegen project.
+
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readmegen.settings')
+
+application = get_wsgi_application()
+
+

@@ -1,51 +1,58 @@
-# Python
-*.pyc
+# Python cache
 __pycache__/
+*.py[cod]
 *.pyo
 *.pyd
 *.pyc
 
-# Django
-db.sqlite3
-*.log
+# Environment files
 .env
 .env.*
+
+# Virtual environment (common locations)
 venv/
+.venv/
+ENV/
 
-# VS Code
+# SQLite database (not for production)
+db.sqlite3
+
+# Django static and media (auto-generated)
+staticfiles/
+static/
+media/
+
+# Django migrations (KEEP migration files, ignore only pycache inside)
+**/migrations/__pycache__/
+
+# IDEs and editor settings
 .vscode/
+.idea/
 
-# macOS and Linux
+# System files
 .DS_Store
 Thumbs.db
 
-# Node (Tailwind)
+# Logs
+*.log
+logs/
+
+# Coverage/testing
+htmlcov/
+coverage.*
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+
+# Node frontend (if used for Tailwind or npm)
 node_modules/
 package-lock.json
-package.json
-postcss.config.js
-tailwind.config.js
-digest.txt
-
 yarn.lock
+pnpm-lock.yaml
 
-# Tailwind CSS build artifacts
-*.css.map
-generator/static/css/output.css
-
-
-
-# OS Trash and backups
-*.bak
-*.swp
-*~
-*.tmp
-
-# Remove this if you want to version control test files later
-generator/tests.py
-
-# Remove the following folder – not used
-my-project/
-
-# Optional: compiled HTML or temporary files
-*.html~
+# Build/Packaging
+build/
+dist/
+*.egg-info/
+.eggs/

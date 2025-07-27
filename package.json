@@ -1,0 +1,19 @@
+{
+  "name": "readme-generator",
+  "version": "1.0.0",
+  "description": "Django README Generator with Tailwind CSS",
+  "scripts": {
+    "build-css": "tailwindcss -i ./static/css/src/tailwind.css -o ./static/css/dist/tailwind.css --minify",
+    "watch-css": "tailwindcss -i ./static/css/src/tailwind.css -o ./static/css/dist/tailwind.css --watch",
+    "dev": "npm run watch-css",
+    "build-production": "NODE_ENV=production tailwindcss -i ./static/css/src/tailwind.css -o ./static/css/dist/tailwind.css --minify",
+    "purge-css": "npm run build-production"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^3.4.17"
+  }
+}

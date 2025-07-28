@@ -7,7 +7,7 @@ A Python-based application for generating professional-quality README.md files f
 This project provides a robust and flexible solution for automating the creation of README.md files.  It leverages Django's framework for structuring the application and allows for customization to fit diverse project needs. The generator can handle various aspects of a README, from project description and feature lists to installation instructions and contributing guidelines.  This eliminates the manual effort involved in crafting README files, allowing developers to focus on core project development.  The application is designed to be easily extensible, allowing for the addition of new features and functionalities as required.  Future development will include support for more advanced README features, such as interactive elements and dynamic content generation.
 
 
-## Features ✨
+## Features 
 
 *   Automated generation of README.md files.
 *   Customizable templates for different project types.

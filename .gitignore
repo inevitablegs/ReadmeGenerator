@@ -1,3 +1,5 @@
+!static/css/src/tailwind.css
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -19,7 +21,6 @@ db.sqlite3
 
 # Django static and media (auto-generated)
 staticfiles/
-static/
 media/
 
 # Django migrations (KEEP migration files, ignore only pycache inside)

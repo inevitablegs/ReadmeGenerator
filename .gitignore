@@ -56,3 +56,6 @@ build/
 dist/
 *.egg-info/
 .eggs/
+
+
+digest.txt
